@@ -1,21 +1,19 @@
 import requests
 
 def obtener_actores_frecuentes(api_key, paginas=5, max_actores=10, preset=None, **parametros):
-    
 
-    # Presets predefinidos
     presets = {
-        "esp": {"language": "es-ES", "with_origin_country": "ES", "vote_count.gte": 500},
+        "esp": {"language": "es-ES", "with_origin_country": "ES", "vote_count.gte": 345,"primary_release_date.gte": "2014-01-01",
+        "primary_release_date.lte": "2024-12-31"},
         "usa": {"language": "en-US", "with_origin_country": "US", "vote_count.gte": 1000},
         "arg": {"language": "es-AR", "with_origin_country": "AR", "vote_count.gte": 300}
     }
 
     params = {
-            "sort_by": "vote_average.desc",
-            **(presets[preset] if preset in presets else {}),
-            **parametros
-             }
-
+        "sort_by": "vote_average.desc",
+        **(presets[preset] if preset in presets else {}),
+        **parametros
+    }
 
     url_discover = "https://api.themoviedb.org/3/discover/movie"
     url_credits = "https://api.themoviedb.org/3/movie/{}/credits"
@@ -23,11 +21,6 @@ def obtener_actores_frecuentes(api_key, paginas=5, max_actores=10, preset=None, 
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {api_key}"
-    }
-
-    params = {
-        "sort_by": "vote_average.desc",
-        **parametros
     }
 
     actores_frecuentes = {}
@@ -53,13 +46,12 @@ def obtener_actores_frecuentes(api_key, paginas=5, max_actores=10, preset=None, 
                 nombre = actor.get("name", "Desconocido")
                 actores_frecuentes[nombre] = actores_frecuentes.get(nombre, 0) + 1
 
-    # Ordenar y devolver los actores más frecuentes
     actores_por_orden = sorted(actores_frecuentes.items(), key=lambda x: x[1], reverse=True)
     return actores_por_orden
 
+# Uso
 api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"
-
 actores_esp = obtener_actores_frecuentes(api_key, preset="esp", paginas=5, max_actores=10)
 print("Top actores España:")
-for nombre, cantidad in actores_esp[:5]:
+for nombre, cantidad in actores_esp[:10]:
     print(f"{nombre}: {cantidad} apariciones")
