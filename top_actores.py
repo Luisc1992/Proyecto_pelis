@@ -55,3 +55,6 @@ actores_esp = obtener_actores_frecuentes(api_key, preset="esp", paginas=5, max_a
 print("Top actores España:")
 for nombre, cantidad in actores_esp[:10]:
     print(f"{nombre}: {cantidad} apariciones")
+
+
+
