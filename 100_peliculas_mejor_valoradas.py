@@ -49,5 +49,3 @@ def obtener_top_peliculas(api_key,paginas=5,preset=None,**presets):
 api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"
 
 obtener_top_peliculas(api_key, paginas=5,preset="esp")
-# para poner opciones que no esten
-# en presets o params(ej): **{"vote_count.gte": 1000, "primary_release_year": 2023}
