@@ -62,6 +62,5 @@ api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1
 
 top_10 = obtener_top_10_actores(api_key, preset="esp", paginas=5, max_actores=10)
 
-print("Top 10 actores más frecuentes:")
-for actor, apariciones in top_10.items():
-    print(f"{actor}: {apariciones} apariciones")
+print(top_10)
+
