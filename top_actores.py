@@ -1,7 +1,10 @@
 import requests
+import sys
 
-def obtener_actores_frecuentes(api_key, paginas=5, max_actores=10, preset=None, **parametros):
+sys.stdout.reconfigure(encoding='utf-8')
 
+
+def obtener_top_10_actores(api_key, paginas=5, max_actores=10, preset=None, **parametros):
     presets = {
         "esp": {"language": "es-ES", "with_origin_country": "ES", "vote_count.gte": 345,"primary_release_date.gte": "2014-01-01",
         "primary_release_date.lte": "2024-12-31"},
@@ -46,15 +49,19 @@ def obtener_actores_frecuentes(api_key, paginas=5, max_actores=10, preset=None, 
                 nombre = actor.get("name", "Desconocido")
                 actores_frecuentes[nombre] = actores_frecuentes.get(nombre, 0) + 1
 
-    actores_por_orden = sorted(actores_frecuentes.items(), key=lambda x: x[1], reverse=True)
-    return actores_por_orden
+    # Función
+    actores_ordenados = sorted(actores_frecuentes.items(), key=lambda x: x[1], reverse=True)[:10]
 
-# Uso
-api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"
-actores_esp = obtener_actores_frecuentes(api_key, preset="esp", paginas=5, max_actores=10)
-print("Top actores España:")
-for nombre, cantidad in actores_esp[:10]:
-    print(f"{nombre}: {cantidad} apariciones")
+    # diccionario
+    top_10_actores = dict(actores_ordenados)
+
+    return top_10_actores
 
 
+api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"  # Cambia esto por tu clave real
 
+top_10 = obtener_top_10_actores(api_key, preset="esp", paginas=5, max_actores=10)
+
+print("Top 10 actores más frecuentes:")
+for actor, apariciones in top_10.items():
+    print(f"{actor}: {apariciones} apariciones")
