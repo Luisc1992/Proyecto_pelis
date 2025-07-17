@@ -3,49 +3,83 @@ import sys
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-def obtener_top_peliculas(api_key,paginas=5,preset=None,**presets):
-
-    url_buscar_por_nombre = "https://api.themoviedb.org/3/search/movie"
-    url_buscar_por_pais =
-
-    presets_dict = {
-    "esp": {"language": "es-ES", "with_origin_country": "ES", "vote_count.gte": 500},
-    "usa": {"language": "en-US", "with_origin_country": "US", "vote_count.gte": 1000},
-    "arg": {"language": "es-AR", "with_origin_country": "AR", "vote_count.gte": 300}
-    }
-
-    params = {
-                "sort_by": "vote_average.desc",
-                **(presets_dict[preset] if preset in presets_dict else {}),
-                **presets
-            }
+def obtener_peliculas_filtradas(api_key, query, min_votos=0, pais=None, nombre_compania=None, paginas=1):
+    datos_peliculas = []
+    
+    url_search = "https://api.themoviedb.org/3/search/movie"
+    url_detalles = "https://api.themoviedb.org/3/movie/{movie_id}"
 
     headers = {
-    "accept": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"
+        "accept": "application/json",
+        "Authorization": f"Bearer {api_key}"
     }
 
     contador = 1
 
-    for pagina in range(1, paginas + 1):  # Páginas de la 1 a la 5 = hasta 100 resultados (20 por página)
-        params["page"] = pagina
-        response = requests.get(url_buscar_por_nombre, headers=headers, params=params)
+    for pagina in range(1, paginas + 1):
+        params = {
+            "query": query,
+            "page": pagina,
+            "language": "es-ES"
+        }
 
-        if response.status_code == 200:
-            data = response.json()
-            resultados = data.get("results", [])
+        response = requests.get(url_search, headers=headers, params=params)
 
-            for pelicula in resultados:
-                titulo = pelicula.get("title", "Sin título")
-                puntuacion = pelicula.get("vote_average", "N/A")
-                anio = pelicula.get("release_date", "Desconocido")[:4]
-                print(f"{contador}. {titulo} ({anio}) - Puntuación: {puntuacion}")
-                contador += 1
-        else:
-                print(f"Error en la página {pagina}: {response.status_code}")
-                break
+        if response.status_code != 200:
+            print(f"Error en búsqueda: {response.status_code}")
+            break
 
+        resultados = response.json().get("results", [])
 
+        for pelicula in resultados:
+            if not pelicula.get("id"):
+                continue
+
+            movie_id = pelicula["id"]
+
+            # Obtener detalles completos
+            detalle = requests.get(url_detalles.format(movie_id=movie_id), headers=headers).json()
+
+            # Filtros
+            if detalle.get("vote_count", 0) < min_votos:
+                continue
+
+            if pais not in detalle.get("origin_country", []):
+                continue
+
+            companias = [c["name"].lower() for c in detalle.get("production_companies", [])]
+            if nombre_compania and nombre_compania.lower() not in " ".join(companias):
+                continue
+
+            titulo = detalle.get("title", "Sin título")
+            puntuacion = detalle.get("vote_average", "N/A")
+            anio = detalle.get("release_date", "Desconocido")[:4]
+            print(f"{contador}. {titulo} ({anio}) - Puntuación: {puntuacion}")
+            contador += 1
+
+            datos_peliculas.append({"titulo": titulo,
+                                    "anio": anio,
+                                    "puntuacion": puntuacion,
+                                    "votos": detalle.get("vote_count",0),
+                                    "pais": detalle.get("origin_country", []),
+                                    "productora": ", ".join(companias)
+                                    })
+                                    
+    return datos_peliculas
+
+# Tu API key
 api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"
 
-obtener_top_peliculas(api_key, paginas=1, **{"vote_count.gte": 100,"query": "Fate","with_origin_country":"JP"})
+# Ejemplo: buscar "Fate", mínimo 100 votos, del país JP, y producidas por Aniplex
+peliculas = obtener_peliculas_filtradas(
+    api_key,
+    query="Fate",
+    min_votos=100,
+    pais="JP",
+    nombre_compania="Aniplex",
+    paginas=1
+)
+
+
+print(peliculas)
+
