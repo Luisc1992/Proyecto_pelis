@@ -4,6 +4,7 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8')
 
 def obtener_duracion_top_peliculas(api_key, paginas=5, preset=None, **presets):
+    duracion_peliculas = []
     url = "https://api.themoviedb.org/3/discover/movie"
     url_detalle = "https://api.themoviedb.org/3/movie/"
 
@@ -45,14 +46,17 @@ def obtener_duracion_top_peliculas(api_key, paginas=5, preset=None, **presets):
                 if respuesta_detalle.status_code == 200:
                     detalle = respuesta_detalle.json()
                     duracion = detalle.get("runtime", "N/A")
-                    print(f"{contador}. {titulo} ({anio}) - Duración: {duracion} min")
+                    duracion_peliculas.append({"titulo":titulo,
+                                               "peli_id":peli_id,
+                                                "anio":anio,
+                                                "duracion":duracion})
                 else:
-                    print(f"{contador}. {titulo} ({anio}) - Duración: no se pudo obtener 😕")
+                    print(f"{contador}. {titulo} ({anio}) - Duración: no se pudo obtener")
                 contador += 1
         else:
             print(f"Error en la página {pagina}: {response.status_code}")
             break
-
+    return duracion_peliculas
 api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"
 
-obtener_duracion_top_peliculas(api_key, paginas=5, preset="esp")
+
