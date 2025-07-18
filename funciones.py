@@ -59,7 +59,6 @@ def obtener_top_peliculas(api_key, paginas=1, preset=None, **presets):
 
     return datos_peliculas
 
-
 #Funcion top_10 actores más repetidos
 def obtener_top_10_actores(api_key, paginas=5, max_actores=10, preset=None, **parametros):
     presets = {
