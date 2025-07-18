@@ -7,7 +7,7 @@ top_10 = obtener_top_10_actores(api_key, preset="esp", paginas=5, max_actores=10
 #print(top_10)
 
 peliculas = obtener_top_peliculas(api_key, paginas=5, preset="esp")
-#print(peliculas)
+print(peliculas)
 generos = contar_generos_top_peliculas(api_key, paginas=5, preset="esp")
 #print(generos)
 duracion = obtener_duracion_top_peliculas(api_key, paginas=5, preset="esp")

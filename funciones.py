@@ -5,7 +5,7 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8')
 api_key = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNjJkNjI2ZmUzYjIyNjA5M2M1MzE3MTE2YTE1Yzc4NiIsIm5iZiI6MTc1MjA2OTAzNi44NTIsInN1YiI6IjY4NmU3M2FjYTcyMmQzODk0YjEwNDYzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VbNiPXVBiDP8jr7KPcJg0YXkttw5T7nJqnkgNVPwKr8"
 
-def obtener_top_peliculas(api_key, paginas=5, preset=None, **presets):
+def obtener_top_peliculas(api_key, paginas=1, preset=None, **presets):
     datos_peliculas = []
     url = "https://api.themoviedb.org/3/discover/movie"
 
@@ -27,8 +27,6 @@ def obtener_top_peliculas(api_key, paginas=5, preset=None, **presets):
         "Authorization": f"Bearer {api_key}"
     }
 
-    contador = 1
-
     for pagina in range(1, paginas + 1):
         params["page"] = pagina
         response = requests.get(url, headers=headers, params=params)
@@ -38,6 +36,9 @@ def obtener_top_peliculas(api_key, paginas=5, preset=None, **presets):
             resultados = data.get("results", [])
 
             for pelicula in resultados:
+                if len(datos_peliculas) >= 10:
+                    break
+
                 titulo = pelicula.get("title", "Sin título")
                 puntuacion = pelicula.get("vote_average", "N/A")
                 fecha = pelicula.get("release_date", "Desconocido")
@@ -49,11 +50,15 @@ def obtener_top_peliculas(api_key, paginas=5, preset=None, **presets):
                     "anio": anio,
                 })
 
+            if len(datos_peliculas) >= 10:
+                break 
+
         else:
             print(f"Error en la página {pagina}: {response.status_code}")
             break
 
     return datos_peliculas
+
 
 #Funcion top_10 actores más repetidos
 def obtener_top_10_actores(api_key, paginas=5, max_actores=10, preset=None, **parametros):
